@@ -1,13 +1,33 @@
 const express = require("express");
+
 const cors = require("cors");
+
 const mysql = require("mysql2");
+
+require("dotenv").config();
+
+
 
 const app = express();
 
+
+
+/* =========================
+   MIDDLEWARE
+========================= */
+
 app.use(cors());
+
 app.use(express.json());
 
-const PORT = 5010;
+
+
+/* =========================
+   PORT
+========================= */
+
+const PORT =
+    process.env.PORT || 5010;
 
 
 
@@ -17,28 +37,53 @@ const PORT = 5010;
 
 const db = mysql.createConnection({
 
-    host: "localhost",
+    host:
+        process.env.MYSQLHOST,
 
-    user: "root",
+    user:
+        process.env.MYSQLUSER,
 
-    password: "",
+    password:
+        process.env.MYSQLPASSWORD,
 
-    database: "VNCHORD"
+    database:
+        process.env.MYSQLDATABASE,
+
+    port:
+        process.env.MYSQLPORT
 
 });
 
 
 
-db.connect(function (error) {
+db.connect(function(error){
 
-    if (error) {
+    if(error){
+
+        console.log("MYSQL ERROR");
 
         console.log(error);
 
     } else {
 
-        console.log("MySQL Connected!");
+        console.log(
+            "MYSQL CONNECTED 🔥"
+        );
     }
+
+});
+
+
+
+/* =========================
+   HOME
+========================= */
+
+app.get("/", function(request, response){
+
+    response.send(
+        "VNChord API Running 🔥"
+    );
 
 });
 
@@ -48,28 +93,38 @@ db.connect(function (error) {
    GET SONGS
 ========================= */
 
-app.get("/songs", function (request, response) {
+app.get("/songs", function(request, response){
 
-    const query = "SELECT * FROM songs";
+    const query =
+        "SELECT * FROM songs ORDER BY id DESC";
 
 
 
-    db.query(query, function (error, result) {
+    db.query(
 
-        if (error) {
+        query,
 
-            response.json({
+        function(error, result){
 
-                success: false
+            if(error){
 
-            });
+                response.status(500).json({
 
-        } else {
+                    success: false,
 
-            response.json(result);
+                    message:
+                        "Failed get songs"
+
+                });
+
+            } else {
+
+                response.json(result);
+            }
+
         }
 
-    });
+    );
 
 });
 
@@ -79,13 +134,16 @@ app.get("/songs", function (request, response) {
    ADD SONG
 ========================= */
 
-app.post("/songs", function (request, response) {
+app.post("/songs", function(request, response){
 
-    const title = request.body.title;
+    const title =
+        request.body.title;
 
-    const artist = request.body.artist;
+    const artist =
+        request.body.artist;
 
-    const chord = request.body.chord;
+    const chord =
+        request.body.chord;
 
 
 
@@ -106,11 +164,11 @@ app.post("/songs", function (request, response) {
 
         [title, artist, chord],
 
-        function (error, result) {
+        function(error, result){
 
-            if (error) {
+            if(error){
 
-                response.json({
+                response.status(500).json({
 
                     success: false
 
@@ -122,6 +180,7 @@ app.post("/songs", function (request, response) {
 
                     success: true
                 });
+
             }
 
         }
@@ -136,15 +195,19 @@ app.post("/songs", function (request, response) {
    UPDATE SONG
 ========================= */
 
-app.put("/songs/:id", function (request, response) {
+app.put("/songs/:id", function(request, response){
 
-    const id = request.params.id;
+    const id =
+        request.params.id;
 
-    const title = request.body.title;
+    const title =
+        request.body.title;
 
-    const artist = request.body.artist;
+    const artist =
+        request.body.artist;
 
-    const chord = request.body.chord;
+    const chord =
+        request.body.chord;
 
 
 
@@ -169,13 +232,14 @@ app.put("/songs/:id", function (request, response) {
 
         [title, artist, chord, id],
 
-        function (error, result) {
+        function(error, result){
 
-            if (error) {
+            if(error){
 
-                response.json({
+                response.status(500).json({
 
                     success: false
+
                 });
 
             } else {
@@ -184,6 +248,7 @@ app.put("/songs/:id", function (request, response) {
 
                     success: true
                 });
+
             }
 
         }
@@ -198,9 +263,10 @@ app.put("/songs/:id", function (request, response) {
    DELETE SONG
 ========================= */
 
-app.delete("/songs/:id", function (request, response) {
+app.delete("/songs/:id", function(request, response){
 
-    const id = request.params.id;
+    const id =
+        request.params.id;
 
 
 
@@ -220,13 +286,14 @@ app.delete("/songs/:id", function (request, response) {
 
         [id],
 
-        function (error, result) {
+        function(error, result){
 
-            if (error) {
+            if(error){
 
-                response.json({
+                response.status(500).json({
 
                     success: false
+
                 });
 
             } else {
@@ -235,6 +302,7 @@ app.delete("/songs/:id", function (request, response) {
 
                     success: true
                 });
+
             }
 
         }
@@ -249,11 +317,11 @@ app.delete("/songs/:id", function (request, response) {
    START SERVER
 ========================= */
 
-app.listen(PORT, function () {
+app.listen(PORT, function(){
 
     console.log(
 
-        `Server berjalan di http://localhost:${PORT}`
+        `SERVER RUNNING ON ${PORT}`
 
     );
 
